@@ -4,20 +4,20 @@ import "github.com/cdarne/monkey/token"
 
 const nul = byte(0) // ASCII NUL char
 
-type lexer struct {
+type Lexer struct {
 	input        string
 	position     int // current char
 	readPosition int // reading position (current char + 1)
 	ch           byte
 }
 
-func New(input string) *lexer {
-	l := &lexer{input: input}
+func New(input string) *Lexer {
+	l := &Lexer{input: input}
 	l.readChar()
 	return l
 }
 
-func (l *lexer) readChar() {
+func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = nul
 	} else {
@@ -27,7 +27,7 @@ func (l *lexer) readChar() {
 	l.readPosition += 1
 }
 
-func (l *lexer) NextToken() (t token.Token) {
+func (l *Lexer) NextToken() (t token.Token) {
 	l.skipWhiteSpace()
 
 	switch l.ch {
@@ -90,13 +90,13 @@ func (l *lexer) NextToken() (t token.Token) {
 	return
 }
 
-func (l *lexer) skipWhiteSpace() {
+func (l *Lexer) skipWhiteSpace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
 }
 
-func (l *lexer) readIdentifier() string {
+func (l *Lexer) readIdentifier() string {
 	start := l.position
 	for isLetter(l.ch) {
 		l.readChar()
@@ -104,7 +104,7 @@ func (l *lexer) readIdentifier() string {
 	return l.input[start:l.position]
 }
 
-func (l *lexer) readNumber() string {
+func (l *Lexer) readNumber() string {
 	start := l.position
 	for isDigit(l.ch) {
 		l.readChar()
@@ -112,7 +112,7 @@ func (l *lexer) readNumber() string {
 	return l.input[start:l.position]
 }
 
-func (l *lexer) peekChar() byte {
+func (l *Lexer) peekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return nul
 	} else {
