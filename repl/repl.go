@@ -17,6 +17,9 @@ func Start(in io.Reader, out io.Writer) {
 		fmt.Fprint(out, Prompt)
 		ok := scanner.Scan()
 		if !ok { // EOF or error
+			if err := scanner.Err(); err != nil {
+				fmt.Fprintf(out, "error scanning input: %v", err)
+			}
 			return
 		}
 
