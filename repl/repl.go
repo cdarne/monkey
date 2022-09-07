@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/cdarne/monkey/lexer"
-	"github.com/cdarne/monkey/token"
+	"github.com/cdarne/monkey/parser"
 )
 
 const Prompt = ">> "
@@ -25,9 +26,18 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		l := lexer.New(line)
+		p := parser.New(l)
+		program := p.ParseProgram()
 
-		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-			fmt.Fprintf(out, "%+v\n", tok)
+		if errors := p.Errors(); len(errors) > 0 {
+			printParserErrors(out, errors)
+			continue
 		}
+
+		fmt.Fprintf(out, "%s\n", program.String())
 	}
+}
+
+func printParserErrors(out io.Writer, errors []string) {
+	fmt.Fprintf(out, "Parsing errors: %s\n", strings.Join(errors, "\n"))
 }
