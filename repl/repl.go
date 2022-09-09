@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/cdarne/monkey/evaluator"
 	"github.com/cdarne/monkey/lexer"
 	"github.com/cdarne/monkey/parser"
 )
@@ -19,7 +20,7 @@ func Start(in io.Reader, out io.Writer) {
 		ok := scanner.Scan()
 		if !ok { // EOF or error
 			if err := scanner.Err(); err != nil {
-				fmt.Fprintf(out, "error scanning input: %v", err)
+				fmt.Fprintf(out, "error scanning input: %v\n", err)
 			}
 			return
 		}
@@ -34,7 +35,12 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		fmt.Fprintf(out, "%s\n", program.String())
+		fmt.Fprintln(out, program.String())
+
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			fmt.Fprintf(out, "=> %s\n", evaluated.Inspect())
+		}
 	}
 }
 
